@@ -41,11 +41,14 @@ hb.init <- function(host='127.0.0.1', port=9090, buffsize=3*1024*1024, serialize
   
   serialize<-match.arg(serialize)
   if (serialize=="native") {
-      assign("sz",function(r) serialize(r,NULL),envir=rhbase:::.hbEnv)
-      assign("usz",unserialize,,envir=rhbase:::.hbEnv)
-  }else if (serialize=="raw") {
-      assign("sz",function(r) charToRaw(as.character(r)),envir=rhbase:::.hbEnv)
-      assign("usz",function(r) rawToChar(r),envir=rhbase:::.hbEnv)
+    assign("sz",function(r) serialize(r,NULL),envir=rhbase:::.hbEnv)
+    assign("usz",unserialize,,envir=rhbase:::.hbEnv)
+  }else if (serialize=="char") {
+    assign("sz",function(r) charToRaw(as.character(r)),envir=rhbase:::.hbEnv)
+    assign("usz",function(r) rawToChar(r),envir=rhbase:::.hbEnv)
+  } else if (serialize=="raw") {
+    assign("sz", identity, envir=rhbase:::.hbEnv)
+    assign("usz", identity, envir=rhbase:::.hbEnv)
   }
   y
 
