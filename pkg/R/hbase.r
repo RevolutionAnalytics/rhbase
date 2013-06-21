@@ -39,19 +39,27 @@ hb.init <- function(host='127.0.0.1', port=9090, buffsize=3*1024*1024, serialize
   "blockcache"=as.logical, "timetolive"=as.integer)
   assign("opt.names",opt.names,envir=rhbase:::.hbEnv)
   
-  serialize<-match.arg(serialize)
-  if (serialize=="native") {
-    assign("sz",function(r) serialize(r,NULL),envir=rhbase:::.hbEnv)
-    assign("usz",unserialize,,envir=rhbase:::.hbEnv)
-  }else if (serialize=="char") {
-    assign("sz",function(r) charToRaw(as.character(r)),envir=rhbase:::.hbEnv)
-    assign("usz",function(r) rawToChar(r),envir=rhbase:::.hbEnv)
-  } else if (serialize=="raw") {
-    assign("sz", identity, envir=rhbase:::.hbEnv)
-    assign("usz", identity, envir=rhbase:::.hbEnv)
-  }
+  serialize <- match.arg(serialize)
+  serde = 
+    switch(
+      serialize,
+      native = 
+        list(
+          sz = function(r) serialize(r,NULL), 
+          usz = unserialize),
+      character = 
+        list(
+          sz = function(r) charToRaw(as.character(r)), 
+          usz = rawToChar),
+      raw =  
+        list(
+          sz = identity, 
+          usz = identity))
+  lapply(
+    names(serde), 
+    function(.sz) 
+      assign(.sz, serde[[.sz]],envir = rhbase:::.hbEnv))
   y
-
 }
 
 hb.list.tables <- function(hbc=hb.defaults('hbc')){
