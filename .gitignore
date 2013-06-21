@@ -3,3 +3,7 @@
 .RData
 
 *.Rproj
+
+*.log
+
+*.orig
