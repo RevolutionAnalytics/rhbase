@@ -19,7 +19,7 @@ hb.defaults <- function(arg){
   } else rhbase:::.hbEnv[[arg]]
 }
 
-hb.init <- function(host='127.0.0.1', port=9090, buffsize=3*1024*1024, serialize=c("native", "raw"), transporttype=0){
+hb.init <- function(host='127.0.0.1', port=9090, buffsize=3*1024*1024, serialize=c("native", "raw", "character"), transporttype=0){
   ## initializes an hbase thrift connection
   ## host     = the hostname of the thrift server
   ## port     = the port on which the thrift server is listening
