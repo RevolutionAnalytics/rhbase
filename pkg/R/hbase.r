@@ -249,23 +249,32 @@ hb.insert.data.frame <- function(tablename, df,sz=hb.defaults("sz"),hbc=hb.defau
   TRUE
 }
 
-hb.get.data.frame <- function(tablename, start,end=NULL,columns=NULL){
-  if(is.null(columns))
+hb.get.data.frame <- function (tablename, start, end = NULL, columns = NULL) 
+{
+  if (is.null(columns)) 
     columns <- rownames(hb.describe.table(tablename))
-  if(is.null(end))
-    scn <- hb.scan(tablename, startrow=start, colspec=columns)
-  else
-    scn <- hb.scan(tablename, startrow=start,end=end,colspec=columns) ## filter is not included
-  function(batchsize=100){
+  if (is.null(end)) 
+    scn <- hb.scan(tablename, startrow = start, colspec = columns)
+  else scn <- hb.scan(tablename, startrow = start, end = end, 
+                      colspec = columns)
+  dataframe<-data.frame()
+  df.full = 0
+  getdf <- function(batchsize = 100) {
     f <- scn$get(batchsize)
-    if(length(f)==0) {
+    if (length(f) == 0) {
       scn$close()
-      return(NULL)
+      return(1)
     }
-    g <- as.data.frame(    lapply(1:length(columns),function(cc) unlist(lapply( lapply(f,"[[",3),"[[",cc)))    )
-    rownames(g) <- unlist(lapply(f,"[[",1))
+    g <- as.data.frame(lapply(1:length(columns), function(cc) unlist(lapply(lapply(f, 
+                                                                                   "[[", 3), "[[", cc))))
+    rownames(g) <- unlist(lapply(f, "[[", 1))
     colnames(g) <- columns
-    g
+    dataframe <<- rbind(dataframe,g)
+    return(0)
   }
+  while(df.full == 0){
+    df.full = getdf()
+  }
+  return(dataframe)
 }
 
