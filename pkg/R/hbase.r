@@ -269,3 +269,24 @@ hb.get.data.frame <- function(tablename, start,end=NULL,columns=NULL){
   }
 }
 
+hb.scan.data.frame <- function( tablename, startrow, end=NULL, colspec,sz=hb.defaults("sz"), usz=hb.defaults("usz"),
+                                hbc=hb.defaults("hbc") )
+{
+  scn <- hb.scan( tablename, startrow, end, colspec, sz, usz, hbc )
+  f <- scn$get()
+  get_column_index_values <- function( column_index )
+  {
+    get_value <- function( row, column_name )
+    {
+      indices <- which( row[[ 2 ]] == column_name )
+      index <- ifelse( length( indices ) == 1, indices[[ 1 ]], 0 )
+      ifelse( index == 0, NA, row[[ 3 ]][[ index ]] )
+    }
+    column_name <- colspec[[ column_index ]]
+    unlist( lapply( f, get_value, column_name ) )
+  }
+  df <- as.data.frame( lapply( 1:length( colspec ), get_column_index_values ) )
+  rownames( df ) <- unlist( lapply( f, "[[", 1 ) )
+  colnames( df ) <- colspec
+  df
+}
