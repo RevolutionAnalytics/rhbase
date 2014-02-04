@@ -269,7 +269,9 @@ hb.get.data.frame <- function(tablename, start,end=NULL,columns=NULL){
   }
 }
 
-hb.scan.data.frame <- function( tablename, startrow, end=NULL, colspec,sz=hb.defaults("sz"), usz=hb.defaults("usz"),
+hb.scan.data.frame <- function( tablename, startrow, end=NULL, colspec,
+                                sz=hb.defaults("sz"),
+                                usz=hb.defaults("usz"),
                                 hbc=hb.defaults("hbc") )
 {
   scn <- hb.scan( tablename, startrow, end, colspec, sz, usz, hbc )
@@ -285,8 +287,16 @@ hb.scan.data.frame <- function( tablename, startrow, end=NULL, colspec,sz=hb.def
     column_name <- colspec[[ column_index ]]
     unlist( lapply( f, get_value, column_name ) )
   }
-  df <- as.data.frame( lapply( 1:length( colspec ), get_column_index_values ) )
+  # cols <- f[[ 1 ]][[ 2 ]]
+  cols <- ifelse( length( colspec ) == 1, f[[ 1 ]][[ 2 ]], colspec )
+  if( length( colspec ) == 1 ) {
+    cols <- f[[ 1 ]][[ 2 ]]
+  } else {
+    cols <- colspec
+  }
+  df <-
+    as.data.frame( lapply( 1:length( cols ), get_column_index_values ) )
   rownames( df ) <- unlist( lapply( f, "[[", 1 ) )
-  colnames( df ) <- colspec
+  colnames( df ) <- cols
   df
 }
