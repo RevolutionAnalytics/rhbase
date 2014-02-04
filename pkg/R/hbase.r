@@ -269,6 +269,23 @@ hb.get.data.frame <- function(tablename, start,end=NULL,columns=NULL){
   }
 }
 
+.hb.get_value <- function( row, column_name )
+{
+  indices <- which( row[[ 2 ]] == column_name )
+  index <- ifelse( length( indices ) == 1, indices[[ 1 ]], 0 )
+  ifelse( index == 0, NA, row[[ 3 ]][[ index ]] )
+}
+
+.hb.create_column_index_values_getter <- function( columns, raw_result )
+{
+  function( column_index )
+  {
+    column_name <- columns[[ column_index ]]
+    unlist( lapply( raw_result, .hb.get_value, column_name ) )
+  }
+}
+
+
 hb.scan.data.frame <- function( tablename, startrow, end=NULL, colspec,
                                 sz=hb.defaults("sz"),
                                 usz=hb.defaults("usz"),
@@ -282,20 +299,14 @@ hb.scan.data.frame <- function( tablename, startrow, end=NULL, colspec,
   } else {
     cols <- colspec
   }
-  get_column_index_values <- function( column_index )
-  {
-    get_value <- function( row, column_name )
-    {
-      indices <- which( row[[ 2 ]] == column_name )
-      index <- ifelse( length( indices ) == 1, indices[[ 1 ]], 0 )
-      ifelse( index == 0, NA, row[[ 3 ]][[ index ]] )
-    }
-    column_name <- cols[[ column_index ]]
-    unlist( lapply( f, get_value, column_name ) )
-  }
   df <-
-    as.data.frame( lapply( 1:length( cols ), get_column_index_values ) )
+    as.data.frame( lapply( 1:length( cols ),
+                           .hb.create_column_index_values_getter( cols,
+                                                                  f ) ) )
   rownames( df ) <- unlist( lapply( f, "[[", 1 ) )
   colnames( df ) <- cols
   df
 }
+
+#hb.scan.ex <- function(tablename, startrow="", end="", colspec=character(0),     timestamp=0, caching=0, filterstring=character(0), sz=hb.defaults("sz"), us    z=hb.defaults("usz"),
+#227                     hbc=hb.defaults("hbc")){
