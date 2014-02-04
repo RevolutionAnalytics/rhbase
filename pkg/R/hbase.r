@@ -276,6 +276,12 @@ hb.scan.data.frame <- function( tablename, startrow, end=NULL, colspec,
 {
   scn <- hb.scan( tablename, startrow, end, colspec, sz, usz, hbc )
   f <- scn$get()
+  cols <- ifelse( length( colspec ) == 1, f[[ 1 ]][[ 2 ]], colspec )
+  if( length( colspec ) == 1 ) {
+    cols <- f[[ 1 ]][[ 2 ]]
+  } else {
+    cols <- colspec
+  }
   get_column_index_values <- function( column_index )
   {
     get_value <- function( row, column_name )
@@ -284,15 +290,8 @@ hb.scan.data.frame <- function( tablename, startrow, end=NULL, colspec,
       index <- ifelse( length( indices ) == 1, indices[[ 1 ]], 0 )
       ifelse( index == 0, NA, row[[ 3 ]][[ index ]] )
     }
-    column_name <- colspec[[ column_index ]]
+    column_name <- cols[[ column_index ]]
     unlist( lapply( f, get_value, column_name ) )
-  }
-  # cols <- f[[ 1 ]][[ 2 ]]
-  cols <- ifelse( length( colspec ) == 1, f[[ 1 ]][[ 2 ]], colspec )
-  if( length( colspec ) == 1 ) {
-    cols <- f[[ 1 ]][[ 2 ]]
-  } else {
-    cols <- colspec
   }
   df <-
     as.data.frame( lapply( 1:length( cols ), get_column_index_values ) )
