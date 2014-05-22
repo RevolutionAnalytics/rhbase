@@ -140,6 +140,7 @@ iter$close()
 # Insert a data frame
 x <- data.frame(x=c("Winston","Jen","Jasmine"), y=runif(3),z=c(1,2,3))
 rownames(x) <- c("20100105","20100106","20100107")
+colnames(x) <- c("x:x", "y:y", "z:z")
 hb.insert.data.frame("testtable",x)
 
 # get data frame, note the columns have ":" appended
